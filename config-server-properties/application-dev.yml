@@ -1,0 +1,28 @@
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
+http-clients:
+  internal:
+    order:
+      base-url: http://API-ORDER-SERVICE-V1
+      timeout: 5s
+    payment:
+      base-url: http://API-PAYMENT-SERVICE-V1
+      timeout: 5s
+    restaurant-v1:
+      base-url: http://API-RESTAURANT-SERVICE-V1
+      timeout: 5s
+    restaurant-v2:
+      base-url: http://API-RESTAURANT-SERVICE-V2
+      timeout: 5s
+    delivery:
+      base-url: http://API-DELIVERY-SERVICE-V1
+      timeout: 5s
+  external:
+    visa:
+      base-url: http://localhost:52010/api/visa/
+      timeout: 5s

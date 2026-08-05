@@ -1,0 +1,19 @@
+server:
+  port: 50050
+  servlet:
+    context-path: /api/v2
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:51050/paymentv2db
+    username: paymentv2user
+    password: paymentv2pass
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        format_sql: true

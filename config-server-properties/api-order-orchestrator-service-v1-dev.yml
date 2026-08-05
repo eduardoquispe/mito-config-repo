@@ -1,0 +1,50 @@
+server:
+  port: 50100
+  servlet:
+    context-path: /api/v1/order-orchestrator
+
+
+resilience4j:
+  retry:
+    instances:
+      defaultRetry:
+        max-attempts: 2 #Numero maximo de intentos
+        wait-duration: 2s #Tiempo de espera entre intentos
+        retry-exceptions:
+          - com.mitocode.order.exception.RetryException
+        ignore-exceptions:
+          - com.mitocode.order.exception.NotRetryException
+  circuitbreaker:
+    instances:
+      chargeServiceV2CircuitBreaker:
+        slidingWindowSize: 10 # Numero de llamadas consideras para calcular el estado (CLOSED/HALF-OPEN/OPEN)
+        failureRateThreshold: 50 # Porcentaje de fallos (de 0 a 100) para abrir el circuito. Ej: 50 significa que si 50% de las llamadas (total de 10) fallan se abre el circuito
+        waitDurationInOpenState: 10s #Tiempo que el circuito permanece abierto antes de pasar a HAL-OPEN, para probar si el servicio se recupero
+        permittedNumberOfCallsInHalfOpenState: 3 #Cantidad de llamadas permitidas cuando esta en HALF-OPEN para evaluar si el servicio funciona de nuevo
+        minimumNumberOfCalls: 5 #Minimo de llamadas necesarias antes de evaluar si debe abrirse el circuito (para evitar decisiones con pocos datos)
+  ratelimiter:
+    instances:
+      checkBalanceRateLimiter:
+        limit-for-period: 2   # maximo de llamadas permitidas es de 2
+        limit-refresh-period: 10s   # cada cuanto se reinicia el contador
+        timeout-duration: 30s #las llamadas excedentes esperan por un slot libre durante 20 segundos, sino se llama al fallback
+
+#Resilience4j RateLimiter propiedades:
+#limit-for-period: Cantidad máxima de requests permitidas por período.
+#limit-refresh-period: Duración del período (intervalos fijos, ej. 20s = 0-20, 20-40...).
+#timeout-duration: Tiempo máximo que una request espera para entrar si ya se alcanzó el límite.
+#                   Si expira, lanza RequestNotPermitted.
+#
+#Nota: limit-refresh-period usa intervalos FIJOS basados en el reloj del sistema.
+#      Ej: limit-for-period=2, limit-refresh-period=20s
+#      - Intervalos: 0-20s, 20-40s, 40-60s...
+#       - Hasta 2 requests por cada intervalo.
+#       - Si haces 2 requests al inicio (segundo 1), debes esperar hasta el segundo 20 para tener 2 más.
+#       No es una ventana móvil; siempre son intervalos fijos.
+
+
+logging:
+  level:
+    io.github.resilience4j: INFO
+    io.github.resilience4j.circuitbreaker: INFO
+    io.github.resilience4j.retry: INFO
